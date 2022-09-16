@@ -1,36 +1,42 @@
+import { Alchemy, Network } from "alchemy-sdk";
 
-const apiKey = "eT1Xj8g-NiqQqdy6KKbZkjfQACS3Nrn0";
-const endpoint = `https://polygon-mumbai.g.alchemy.com/v2/${apiKey}`;
+// const apiKey = "eT1Xj8g-NiqQqdy6KKbZkjfQACS3Nrn0";
+// const endpoint = `https://polygon-mumbai.g.alchemy.com/v2/${apiKey}`;
 
-export const fetchNFTs = async ( contractAddress, setNFTs, retryAttempt) => {
+const config = {
+  apiKey: "eT1Xj8g-NiqQqdy6KKbZkjfQACS3Nrn0",
+  network: Network.MATIC_MUMBAI,
+};
+const alchemy = new Alchemy(config);
+let count = 0;
+let flag = 0;
+
+export const fetchNFTs = async (contractAddress, setNFTs, retryAttempt) => {
   if (retryAttempt === 100) {
     return;
   }
   if (contractAddress) {
-    let data;
-    try {
-      //Get Nft Metadata From Contract
-      const withMetadata = "true";
+    const omitMetadata = false;
 
-      var requestOptions = {
-        method: "get",
-        headers: { "Content-Type": "application/json" },
-        body: data,
-        redirect: "follow",
-      };
+    // Get all NFTs
+    const response = await alchemy.nft.getNftsForContract(contractAddress, {
+      omitMetadata: omitMetadata,
+    });
 
-      data = await fetch(
-        `${endpoint}/getNFTsForCollection?contractAddress=${contractAddress}&withMetadata=${withMetadata}`,
-        requestOptions
-      ).then((data) => data.json());
-
-      
-    } catch (e) {
-      fetchNFTs(endpoint, contractAddress, setNFTs, retryAttempt + 1);
+    if (response.nfts[count].media.length === 0) {
+      await fetchNFTs(contractAddress, setNFTs, retryAttempt + 1);
+    } 
+    else{
+      if(count === response.nfts.length-1)
+      {
+        setNFTs(response.nfts);
+        return;
+      }
+      count++;
+      await fetchNFTs(contractAddress, setNFTs, retryAttempt + 1);
     }
 
-    setNFTs(data.nfts);
-    console.log(data.nfts);
-    return data;
+    console.log(response.nfts);
+    return response;
   }
 };

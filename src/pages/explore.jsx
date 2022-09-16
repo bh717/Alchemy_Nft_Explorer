@@ -33,19 +33,6 @@ const Explore = () => {
             console.log("got notification");
         });
 
-        socket.on('disconnect', () => {
-          setIsConnected(false);
-        });
-    
-        socket.on('pong', () => {
-          setLastPong(new Date().toISOString());
-        });
-    
-        return () => {
-          socket.off('connect');
-          socket.off('disconnect');
-          socket.off('pong');
-        };
       }, [])
 
     useEffect(() => {
@@ -55,6 +42,7 @@ const Explore = () => {
             console.log("contractAddress:", contractAddress);
             await fetchTransactionHistory( contractAddress, setTransactionHistory);
             await fetchNFTs( contractAddress, setNFTs);
+            console.log("nft:", NFTs);
             Loading.remove();
         })();
     }, [address, contractAddress]);
@@ -90,7 +78,7 @@ const Explore = () => {
                         {NFTs? NFTs.map(NFT => {
                             
                             return (
-                                <NftCard image={NFT.media[0].gateway} id={NFT.id.tokenId } title={NFT.title} contractaddress={contractAddress} address= {address.toLowerCase()} tokenID= {NFT.id.tokenId} tokenType={NFT.id.tokenMetadata.tokenType}></NftCard>
+                                <NftCard image={NFT.media[0]?.gateway} id={NFT.tokenId } title={NFT.title} contractaddress={contractAddress} address= {address.toLowerCase()} tokenID= {NFT.tokenId} tokenType={NFT.tokenType}></NftCard>
                             )
                         }) : <div>No NFTs found</div>}
                     </div>
@@ -106,7 +94,7 @@ const Explore = () => {
                             
                             return (
                                 
-                                <NftTransferCard image={NFT.media[0].gateway} id={NFT.id.tokenId } title={NFT.title} contractaddress={contractAddress} address= {address.toLowerCase()} tokenID= {NFT.id.tokenId} tokenType={NFT.id.tokenMetadata.tokenType}></NftTransferCard>
+                                <NftTransferCard image={NFT.media[0]?.gateway} id={NFT.tokenId } title={NFT.title} contractaddress={contractAddress} address= {address.toLowerCase()} tokenID= {NFT.tokenId} tokenType={NFT.tokenType}></NftTransferCard>
                             )
                         }) : <div>No NFTs found</div>}
                     </div>

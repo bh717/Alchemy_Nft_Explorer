@@ -14,7 +14,6 @@ const NftTransferCard = ({
   tokenType,
 }) => {
   const [nftOwner, setOwner] = useState("");
-  const [_tokenID, setTokenID] = useState(0);
 
   useEffect(() => {
     async function fetchData() {
@@ -27,7 +26,6 @@ const NftTransferCard = ({
     }
     fetchData();
 
-    setTokenID(Number(tokenID));
 
   }, []);
 
@@ -45,12 +43,12 @@ const NftTransferCard = ({
 
           <div className="flex w-full mt-2 flex-row justify-between align-center">
             <p>TokenID:</p>
-            <p>{`${id.slice(0, 4)}...${id.slice(id.length - 4)}`}</p>
+            <p>{tokenID}</p>
           </div>
 
           <div className="flex w-full mt-2 flex-row justify-between align-center">
             <p>TokenType :</p>
-            <p>{_tokenID}</p>
+            <p>{tokenType}</p>
           </div>
 
           <div className="flex w-full mt-2 flex-row justify-between align-center">
