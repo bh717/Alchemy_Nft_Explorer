@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import NftCard from '../components/nftcard';
+import NftTransferCard from '../components/nfttransfercard';
 
 import TransactionCard from '../components/transactioncard';
 
@@ -8,7 +9,9 @@ import {fetchNFTs} from '../utils/fetchNFTs';
 import {fetchTransactionHistory} from '../utils/fetchTransactionHistory';
 import { Loading } from 'notiflix';
 import { useEffect } from 'react';
+import io from 'socket.io-client';
 
+const socket = io();
 
 const Explore = () => {
 
@@ -17,14 +20,41 @@ const Explore = () => {
     const [NFTs, setNFTs] = useState("")
     const [transaction, setTransactionHistory] = useState("")
 
+
+    const [isConnected, setIsConnected] = useState(socket.connected);
+    const [lastPong, setLastPong] = useState(null);
+
+    useEffect(() => {
+        socket.on('connect', () => {
+          setIsConnected(true);
+        });
+        
+        socket.on('notification', (notificationBody) => {
+            console.log("got notification");
+        });
+
+        socket.on('disconnect', () => {
+          setIsConnected(false);
+        });
+    
+        socket.on('pong', () => {
+          setLastPong(new Date().toISOString());
+        });
+    
+        return () => {
+          socket.off('connect');
+          socket.off('disconnect');
+          socket.off('pong');
+        };
+      }, [])
+
     useEffect(() => {
         (async () => {
             Loading.standard();
             console.log("address", address);
             console.log("contractAddress:", contractAddress);
-            await fetchTransactionHistory( address, setTransactionHistory);
+            await fetchTransactionHistory( contractAddress, setTransactionHistory);
             await fetchNFTs( contractAddress, setNFTs);
-            console.log("data:", transaction);
             Loading.remove();
         })();
     }, [address, contractAddress]);
@@ -50,28 +80,48 @@ const Explore = () => {
                 </div>
             </header>
 
-            <section className='flex flex-col justify-center items-center p-4'>
-                
-                <div className='flex'>
-                    <p>Minted NFT</p>
+            <section className='flex flex-row justify-center items-center p-4 w-full'>
+                <div className='flex flex-col justify-center items-center p-4 w-full'>
+                    <div className='flex'>
+                        <p>UnTransfered Minted NFT</p>
+                    </div>
+
+                    <div className='flex flex-col w-full justify-center'>
+                        {NFTs? NFTs.map(NFT => {
+                            
+                            return (
+                                <NftCard image={NFT.media[0].gateway} id={NFT.id.tokenId } title={NFT.title} contractaddress={contractAddress} address= {address.toLowerCase()} tokenID= {NFT.id.tokenId} tokenType={NFT.id.tokenMetadata.tokenType}></NftCard>
+                            )
+                        }) : <div>No NFTs found</div>}
+                    </div>
                 </div>
 
-                <div className='flex flex-wrap w-full justify-center'>
-                    {NFTs? NFTs.map(NFT => {
-                        
-                        return (
-                            <NftCard image={NFT.media[0].gateway} id={NFT.id.tokenId } title={NFT.title} address={NFT.contract.address} tokenID= {NFT.id.tokenId} tokenType={NFT.id.tokenMetadata.tokenType}></NftCard>
-                        )
-                    }) : <div>No NFTs found</div>}
+                <div className='flex flex-col justify-center items-center p-4 w-full'>
+                    <div className='flex'>
+                        <p>Transfered Minted NFT</p>
+                    </div>
+
+                    <div className='flex flex-col w-full justify-center'>
+                        {NFTs? NFTs.map(NFT => {
+                            
+                            return (
+                                
+                                <NftTransferCard image={NFT.media[0].gateway} id={NFT.id.tokenId } title={NFT.title} contractaddress={contractAddress} address= {address.toLowerCase()} tokenID= {NFT.id.tokenId} tokenType={NFT.id.tokenMetadata.tokenType}></NftTransferCard>
+                            )
+                        }) : <div>No NFTs found</div>}
+                    </div>
                 </div>
-              
                
             </section>
            
             <section className='flex flex-col w-full border-t-4 flex-wrap justify-center items-center p-4'>
 
-                <div className='flex'>
+                <div className='flex flex-col'>
                     <p>Real time Transaction</p>
+
+                    <p>Connected: { '' + isConnected }</p>
+                    <p>Last pong: { lastPong || '-' }</p>
+      
                 </div>
             
                 {transaction ? (

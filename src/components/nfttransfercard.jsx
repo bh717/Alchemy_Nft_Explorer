@@ -1,11 +1,10 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-
+/* eslint-disable jsx-a11y/alt-text */
 import { useState } from "react";
 import { useEffect } from "react";
 
 import { fetchCheckOwner } from "../utils/fetchOwnedNfts";
 
-const NftCard = ({
+const NftTransferCard = ({
   image,
   id,
   title,
@@ -17,10 +16,6 @@ const NftCard = ({
   const [nftOwner, setOwner] = useState("");
   const [_tokenID, setTokenID] = useState(0);
 
-  const sleep = (milliseconds) => {
-    return new Promise(resolve => setTimeout(resolve, milliseconds))
-  }
-
   useEffect(() => {
     async function fetchData() {
       const response = await fetchCheckOwner(
@@ -29,23 +24,15 @@ const NftCard = ({
         setOwner
       );
       setOwner(response.owners[0]);
-
-      console.log("nftOwner:", response.owners[0]);
-      console.log("address:", address);
-      // await sleep(5000);
-
-      if(response.owners[0] === address)
-      {
-        console.log("same tokenID:",tokenID);
-      
-      }
     }
     fetchData();
-    setTokenID(Number(tokenID));
-  }, []);    
 
-  return nftOwner ? (
-    nftOwner === address && (
+    setTokenID(Number(tokenID));
+
+  }, []);
+
+  return nftOwner?(
+    nftOwner !== address && (
       <div className="flex flex-row w-1/4 mr-3 mb-4 bg-slate-100 rounded-md w-full">
         <div className="flex bg-gray-600 w-[400px] h-[200px]">
           <img className="w-[400px] h-[200px]" key={id} src={image} />
@@ -68,8 +55,8 @@ const NftCard = ({
 
           <div className="flex w-full mt-2 flex-row justify-between align-center">
             <p>Contract Address :</p>
-            <p>{`${address.slice(0, 4)}...${address.slice(
-              address.length - 4
+            <p>{`${contractaddress.slice(0, 4)}...${contractaddress.slice(
+              contractaddress.length - 4
             )}`}</p>
           </div>
 
@@ -92,4 +79,4 @@ const NftCard = ({
   ):null;
 };
 
-export default NftCard;
+export default NftTransferCard;

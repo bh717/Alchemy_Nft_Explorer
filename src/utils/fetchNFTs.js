@@ -30,6 +30,7 @@ export const fetchNFTs = async ( contractAddress, setNFTs, retryAttempt) => {
     }
 
     setNFTs(data.nfts);
+    console.log(data.nfts);
     return data;
   }
 };

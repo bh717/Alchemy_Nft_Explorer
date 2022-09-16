@@ -1,6 +1,12 @@
+import { useEffect } from "react";
+import { useState } from "react"
 
 const TransactionCard = ({ tokenID, from , to}) => {
-    
+    const [_tokenID, setTokenID] = useState(0);
+
+    useEffect(()=>{
+        setTokenID(Number(tokenID));
+    },[])
     return (
         <div className="flex flex-row w-1/4 mr-3 mb-4 bg-slate-100 rounded-md" >
             <div className="flex flex-col ml-6 p-3 w-[100%] justify-center">
@@ -9,7 +15,7 @@ const TransactionCard = ({ tokenID, from , to}) => {
                     </div>
                     <div className="flex w-full flex-row justify-between align-center">
                         <p>TokenID:</p>
-                        <p>{`${tokenID.slice(0, 4)}...${tokenID.slice(tokenID.length - 4)}`}</p>
+                        <p>{_tokenID}</p>
                     </div>
 
                     <div className="flex w-full flex-row justify-between align-center">
